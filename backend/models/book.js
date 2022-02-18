@@ -9,9 +9,8 @@ const bookSchema = new mongoose.Schema({
   category: String,
   priceRental: Number,
   pricePurchase: Number,
-  user: { type: mongoose.Schema.ObtectId, ref: "users" },
   registerDate: { type: Date, default: Date.now },
-  dbStatus: true,
+  dbStatus: Boolean,
 });
 const book = mongoose.model("books", bookSchema);
 export default book;
