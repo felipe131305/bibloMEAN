@@ -23,7 +23,7 @@ const registerUser = async (req, res) => {
     document: req.body.document,
     password: passHash,
     role: req.body.role,
-    dnStatus: true,
+    dbStatus: true,
   });
 
   const result = await userSchema.save();
@@ -59,4 +59,33 @@ const listUser = async (req, res) => {
     : res.status(200).send({ users });
 };
 
-export default { registerUser, listUser};
+const login = async (req, res) => {
+  const userLogin = await user.findOne({ email: req.body.email });
+  if (!userLogin)
+    return res.status(400).send({ message: "Wrong email or password" });
+  if (!userLogin.dbStatus)
+    return res.status(400).send({ message: "user no found" });
+  const passHash = await bcrypt.compare(req.body.password, userLogin.password);
+  if (!userLogin)
+    return res.status(400).send({ message: "Wrong email or password" });
+
+  try {
+    return res.status(200).json({
+      token: jwt.sign(
+        {
+          _id: userLogin._id,
+          name: userLogin.name,
+          age: userLogin.age,
+          role: userLogin.role,
+          phone: userLogin.phone,
+          iat: moment().unix(),
+        },
+        process.env.SK_JWT
+      ),
+    });
+  } catch (error) {
+    return res.status(500).send({ message: " Register Error" });
+  }
+};
+
+export default { registerUser, listUser, login };
