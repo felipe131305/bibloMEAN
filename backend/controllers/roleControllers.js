@@ -1,4 +1,5 @@
 import role from "../models/role.js";
+import users from "../models/user.js";
 
 const registerRole = async (req, res) => {
   if (!req.body.name || !req.body.description)
@@ -23,4 +24,24 @@ const listRole = async (req, res) => {
   return res.status(200).send({ roles });
 };
 
-export default { registerRole, listRole };
+const deleteRole = async (req, res) => {
+  if (!req.params["_id"])
+    return res.status(400).send({ message: "incomplete data" });
+
+  const roles = await role.findByIdAndDelete(req.params["_id"]);
+  return !roles
+    ? res.status(400).send({ message: "Error deleting role" })
+    : res.status(200).send({ message: "role deleted " });
+};
+
+const updateRole = async (req, res) => {
+  if (!req.body.name || !req.body.description || !req.body._id)
+    return res.status(400).send({ message: "Incomplete data" });
+  const editRole = await role.findByIdAndUpdate(req.body._id, {
+    name: req.body.name,
+    description: req.body.description,
+  });
+  if (!editRole) return res.status(500).send({ message: "Error update role" });
+  return res.status(200).send({ message: "Role update" });
+};
+export default { registerRole, listRole, deleteRole, updateRole };

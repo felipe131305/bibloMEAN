@@ -49,7 +49,7 @@ const registerUser = async (req, res) => {
   }
 };
 
-const listUser = async (req, res) => {
+const listUserAdmin = async (req, res) => {
   let users = await user
     .find({ name: new RegExp(req.params["name"]) })
     .populate("role")
@@ -59,6 +59,18 @@ const listUser = async (req, res) => {
     : res.status(200).send({ users });
 };
 
+const listUser = async (req, res) => {
+  let users = await user
+    .find({
+      $and: [{ name: new RegExp(req.params["name"]) }, { dbStatus: "true" }],
+    })
+    .populate("role")
+    .exec();
+  if (users.length === 0)
+    return res.status(400).send({ message: "No serach results" });
+  return res.status(200).send({ users });
+};
+
 const login = async (req, res) => {
   const userLogin = await user.findOne({ email: req.body.email });
   if (!userLogin)
@@ -66,7 +78,7 @@ const login = async (req, res) => {
   if (!userLogin.dbStatus)
     return res.status(400).send({ message: "user no found" });
   const passHash = await bcrypt.compare(req.body.password, userLogin.password);
-  if (!userLogin)
+  if (!passHash)
     return res.status(400).send({ message: "Wrong email or password" });
 
   try {
@@ -88,4 +100,46 @@ const login = async (req, res) => {
   }
 };
 
-export default { registerUser, listUser, login };
+const deleteUser = async (req, res) => {
+  if (!req.params["_id"])
+    return res.status(400).send({ message: "Incomplete data" });
+  const users = await user.findByIdAndUpdate(req.params["_id"], {
+    dbStatus: false,
+  });
+  return !users
+    ? res.status(500).send({ message: "Error deleting user" })
+    : res.status(200).send({ message: "User deleted successfully" });
+};
+
+const updateUser = async (req, res) => {
+  if (
+    !req.body._id ||
+    !req.body.name ||
+    !req.body.age ||
+    !req.body.email ||
+    !req.body.role ||
+    !req.body.document ||
+    !req.body.phone
+  )
+    return res.status(400).send({ message: "Incomplete data" });
+
+  let pass = "";
+  if (!req.body.password) {
+    const findUser = await user.findOne({ email: req.body.email });
+    pass = findUser.password;
+  } else {
+    pass = await bcrypt.hash(req.body.password, 10);
+  }
+  const editUser = await user.findByIdAndUpdate(req.body._id, {
+    name: req.body.name,
+    age: req.body.age,
+    role: req.body.role,
+    document: req.body.document,
+    phone: req.body.phone,
+    password: pass,
+  });
+  if (!editUser) return res.status(500).send({ message: "Error update user" });
+  return res.status(200).send({ message: "User update" });
+};
+
+export default { registerUser, listUser, login, deleteUser, updateUser,listUserAdmin };
