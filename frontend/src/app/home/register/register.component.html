@@ -1,0 +1,67 @@
+<div class="form">
+  <mat-card class="card">
+    <mat-card-title> Register User</mat-card-title>
+    <mat-card-content>
+      <div class="container">
+        <mat-form-field>
+          <input
+            [(ngModel)]="registerData.name"
+            matInput
+            placeholder="Ingrese su nombre y apellido"
+            required
+          />
+        </mat-form-field>
+        <mat-form-field>
+          <input
+            [(ngModel)]="registerData.age"
+            matInput
+            placeholder="Ingrese su edad"
+            type="number"
+            required
+          />
+        </mat-form-field>
+        <mat-form-field>
+          <input
+            [(ngModel)]="registerData.phone"
+            matInput
+            placeholder="Ingrese su telefono"
+            type="number"
+            required
+          />
+        </mat-form-field>
+        <mat-form-field>
+          <input
+            [(ngModel)]="registerData.email"
+            matInput
+            type="email"
+            placeholder="Ingrese email"
+            required
+          />
+        </mat-form-field>
+        <mat-form-field>
+            <input
+              [(ngModel)]="registerData.document"
+              matInput
+              placeholder="Ingrese su documento"
+              type="number"
+              required
+            />
+          </mat-form-field>
+        <mat-form-field>
+          <input
+            [(ngModel)]="registerData.password"
+            matInput
+            type="password"
+            placeholder="Ingrese su password"
+            required
+          />
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+    <mat-card-actions>
+      <button (click)="registerUser()" class="button" mat-raised-button>
+        register
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>
